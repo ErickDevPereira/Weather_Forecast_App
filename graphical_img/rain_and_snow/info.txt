@@ -1,0 +1,1 @@
+This directory will hold the rain-snow images created by matplotlib.pyplot

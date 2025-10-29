@@ -1,0 +1,1 @@
+This directory will hold the humidity images created by matplotlib.pyplot
