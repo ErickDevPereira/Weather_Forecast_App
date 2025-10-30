@@ -54,6 +54,8 @@ def transform_date(date_str):
                 return 'nov'
             case 12:
                 return 'dec'
+    if not isinstance(date_str, str):
+        raise TypeError(f'Transform_date() function takes date_str argument as str, not {type(date_str)}')
     try:
         date_str = check_date(date_str)
     except InvalidDateError as e:
@@ -146,6 +148,8 @@ def get_rain_data_organized(db):
 '''This function takes a full datetime and returns the same data in a beautiful way.
 Ex.: 2025-26-10 18:24:30 ---> 26, oct 06:25:30 PM'''
 def beaulty_date(datetime):
+    if not isinstance(datetime, str):
+        raise TypeError(f"beaulty_date() function's parameter takes str as argument, not {type(datetime)}")
     if not (len(datetime) == 19 and datetime[4] == '-' and datetime[7] == '-' and datetime[10] == ' ' and datetime[13] == ':' and datetime[16] == ':'):
         raise InvalidDateTimeError(datetime)
     pieces = datetime.split()
@@ -170,12 +174,6 @@ def beaulty_date(datetime):
     treated_date = transform_date(only_date)
     full_date = treated_date + ' ' + treated_time
     return full_date
-    
 
 if __name__ == '__main__':
-    #Testing
-    try:
-        print(transform_date('2024-12-08'))
-    except RangeError as e:
-            print(e)
-            print(e.describe())
+    pass

@@ -5,8 +5,38 @@ import DB.CRUD_DDL as crud_ddl
 import args
 import aux_functions
 from graphs import generate_snow_rain_prediction_graph, generate_snow_rain_prob_graph, generate_bar_amount_mm_animation
-import os
 from ERROR_files.CustomError import *
+import os
+
+'''Decorator responsible for deletion of files when we call a function with such decorator
+on top. Pass the list of paths to the decorator when you call the function.'''
+def delete_files(list_with_paths):    
+    def delete_files(func):
+        def wrapper():
+            for path_file in list_with_paths:
+                if not isinstance(path_file, str):
+                    raise TypeError(f"The path in the list for the @delete_files decorator must be string, not {type(path_file)}")
+                if os.path.exists(path_file):
+                    os.remove(path_file)
+            func()
+        return wrapper
+    return delete_files
+
+@delete_files(['graphical_img/humidity_img/histogram_humidity.png',
+               'graphical_img/humidity_img/humidity_bar.png',
+               'graphical_img/humidity_img/humidity_graph.png',
+               'graphical_img/humidity_img/humidity_pie.png',
+               'graphical_img/rain_and_snow/histogram_precipitation_overall.png',
+               'graphical_img/rain_and_snow/histogram_precipitation_rainfall.png',
+               'graphical_img/temp_img/histogram_temp.png',
+               'graphical_img/temp_img/temp_bar.png',
+               'graphical_img/temp_img/temp_graph.png',
+               'graphical_img/temp_img/temp_pie.png']) #This decorator will delete all these files when we call the function
+def del_DB_user_data():
+    file = 'DB/MySQL_fulldata.txt'
+    if os.path.exists(file):
+        os.remove(file)
+        print("The next time you open the app, it will need your username and password again\nbecause you closed the connection")
 
 """Class that will define a pattern for any window from now on.
 I implemented it here in order to reuse code later throughout inheritance."""
@@ -187,8 +217,7 @@ class Main_Dashboard(Screen, Widget):
         self.main_frame.place(relx = 0.22, rely = 0.04)
     
     def close_conn(self):
-        if os.path.exists('DB/MySQL_fulldata.txt'):
-            os.remove('DB/MySQL_fulldata.txt')
+        del_DB_user_data()
         self.app.destroy()
 
     def call_temp_widgets(self):

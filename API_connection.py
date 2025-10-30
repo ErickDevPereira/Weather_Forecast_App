@@ -17,7 +17,10 @@ def get_exe_time(func):
 
 #This function returns 0 if we can't achieve data for such city, 1 if it can reach data for such city
 def check_if_connection_is_set(city_name, *, url, token):
-
+    names = {'city_name' : city_name, 'url' : url, 'token' : token}
+    for name, obj in names.items():
+        if not isinstance(obj, str):
+            raise TypeError(f'check_if_connection_is_set() must have string at {name}, not {type(obj)}')
     api_URL = url
     parameters = {'key' : token, 'q' : city_name}
     response = requests.get(api_URL, params = parameters)
@@ -28,6 +31,10 @@ def check_if_connection_is_set(city_name, *, url, token):
 
 @get_exe_time
 def API_to_DB(database_conn, city_name, *, url, token):
+    names = {'city_name' : city_name, 'url' : url, 'token' : token}
+    for name, obj in names.items():
+        if not isinstance(obj, str):
+            raise TypeError(f'API_to_DB() must have string at {name}, not {type(obj)}')
     URL = url
     parameters = {'key' : token, 'q' : city_name, 'days' : 7}
 

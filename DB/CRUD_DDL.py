@@ -1,10 +1,18 @@
 import mysql.connector as conn
 
+def input_as_string(username, password):
+    names = {'username' : username, 'password' : password}
+    for name, obj in names.items():
+        if not isinstance(obj, str):
+            raise TypeError(f"Automate_creation() function accepts string at {name}, nothing else.\nYou've used {type(obj)}")
+
 """
 The following function is responsible for the automation of the creation of the tables
 and creation of the database. It must be implemented at the beginning of the main.py module.
 """
 def automate_creation(username, password):
+
+    input_as_string(username, password)
     
     db = conn.connect(
                 host = 'localhost',
@@ -81,6 +89,7 @@ def automate_creation(username, password):
     return db #Returning the connection object
 
 def sanitize_DB(username, password):
+    input_as_string(username, password)
     db_finish = conn.connect(
                         host = 'localhost',
                         user = username,
@@ -92,6 +101,7 @@ def sanitize_DB(username, password):
     db_finish.close()
 
 def define_conn(username, password):
+    input_as_string(username, password)
     db = conn.connect(
                     host = 'localhost',
                     user = username,

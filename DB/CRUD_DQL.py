@@ -1,6 +1,10 @@
+#The following function presents a pattern to show a standard error in a nice way for the case at which the programmer doesn't give an integer for the mode parameter.
+def input_as_int(number, function_name, par_name = 'mode'):
+    if not isinstance(number, int):
+        raise TypeError(f"{function_name}() can only accept int at {par_name}.\nYou've given {type(number)}")
+
 '''The following function will return a list of dictionaries, where each dictionary will store
 data related to one of the next 3 days. The least will contain data for 3 days straight.'''
-
 def evaluate_avg_over_group(db):
     cursor = db.cursor()
     cursor.execute("""
@@ -117,6 +121,7 @@ def all_data(db):
 
 #Mode = 1 returns the raining moments, mode = 0 returns the snowing moments
 def rain_snow_data(db, mode):
+    input_as_int(mode, 'rain_snow_data')
     if mode == 1:
         cursor = db.cursor()
         cursor.execute('''
@@ -146,14 +151,14 @@ def rain_snow_data(db, mode):
         dataset = cursor.fetchall()
         cursor.close()
     aux_dataset = evaluate_avg_over_group(db)
-    day1, day2, day3 = aux_dataset[0]['date'], aux_dataset[1]['date'], aux_dataset[2]['date']
+    day1, day2, day3 = str(aux_dataset[0]['date']), str(aux_dataset[1]['date']), str(aux_dataset[2]['date'])
     hours1, hours2, hours3 = list(), list(), list()
     for data in dataset:
-        if data[0] == day1:
+        if str(data[0]) == day1:
             hours1.append(data[1])
-        if data[0] == day2:
+        if str(data[0]) == day2:
             hours2.append(data[1])
-        if data[0] == day3:
+        if str(data[0]) == day3:
             hours3.append(data[1])
     treated_dataset = {day1 : hours1, day2 : hours2, day3 : hours3}
     return treated_dataset #Returns a dictionary with the forecast day as key and list with hours of raining/snowing as value
@@ -201,6 +206,7 @@ def min_max_humidity(db):
 
 #mode = 0 means that we are accessing rain probability, mode = 1 means that we are accessing snow probability
 def pick_up_probabilities(db, mode):
+    input_as_int(mode, 'pick_up_probabilities')
     if mode == 0:
         cursor = db.cursor()
         cursor.execute("""
@@ -238,6 +244,7 @@ def pick_up_probabilities(db, mode):
 #Mode = 0 returns list of dictionaries with data for day and hour with temperature higher than the limit of confort zone
 #Mode = 1 returns list of dictionaries with data for day and hour with temperature lower than the limit of confort zone
 def danger_time_temp(db, mode):
+    input_as_int(mode, 'danger_time_temp')
     dataset = list()
     cursor = db.cursor()
     if mode == 0:
@@ -275,6 +282,7 @@ def danger_time_temp(db, mode):
 #Mode = 0 returns list of dictionaries with data for day and hour with humidity higher than the limit of confort zone
 #Mode = 1 returns list of dictionaries with data for day and hour with humidity lower than the limit of confort zone
 def danger_time_humidity(db, mode):
+    input_as_int(mode, 'danger_time_humidity')
     dataset = list()
     cursor = db.cursor()
     if mode == 0:
