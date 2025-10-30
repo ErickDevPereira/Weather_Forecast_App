@@ -6,6 +6,7 @@ import args
 import aux_functions
 from graphs import generate_snow_rain_prediction_graph, generate_snow_rain_prob_graph, generate_bar_amount_mm_animation
 import os
+from ERROR_files.CustomError import *
 
 """Class that will define a pattern for any window from now on.
 I implemented it here in order to reuse code later throughout inheritance."""
@@ -319,10 +320,15 @@ class Main_Dashboard(Screen, Widget):
                                         text = f'Wind Speed: {self.current_dataset['current_ws']} km/h',
                                         font = (args.fe_args['font_family'], 17))
         self.msg_current_ws.place(relx = 0.37, rely = 0.56)
-        self.msg_current_lu = ctk.CTkLabel(self.overall_frame,
+        try:
+            self.msg_current_lu = ctk.CTkLabel(self.overall_frame,
                                         text = f'Last update: {aux_functions.beaulty_date(str(self.current_dataset['last update']))}',
                                         font = (args.fe_args['font_family'], 17))
-        self.msg_current_lu.place(relx = 0.09, rely = 0.8)
+            self.msg_current_lu.place(relx = 0.09, rely = 0.8)
+        except InvalidDateTimeError as e:
+            print(e)
+            print(e.describe())
+
 
     def call_overall_widgets(self, first_call = False):
         self.current_dataset = crud_dql.get_current_weather_data(self.my_db)

@@ -1,7 +1,6 @@
 import DB.CRUD_DQL as crud_dql
-from CustomError import InvalidDateError, RangeError
+from ERROR_files.CustomError import *
 import numpy as np
-import DB.CRUD_DDL as crud_ddl
 
 """This function pick up a list, takes the inner part of every subinterval out, letting just the edges of each subinterval.
 Such new list will be returned
@@ -55,10 +54,23 @@ def transform_date(date_str):
                 return 'nov'
             case 12:
                 return 'dec'
-    date_str = check_date(date_str)
-    date_pieces = date_str.split('-')
-    new_format_date = str(int(date_pieces[2])) + ', ' + transform_month(check_range_val(int(date_pieces[1])))
-    return new_format_date
+    try:
+        date_str = check_date(date_str)
+    except InvalidDateError as e:
+        print(e)
+        print(e.describe())
+    else:
+        date_pieces = date_str.split('-')
+        try:
+            day = str(int(date_pieces[2]))
+            if len(day) == 1:
+                day = '0' + day
+            new_format_date = day + ', ' + transform_month(check_range_val(int(date_pieces[1])))
+        except RangeError as e:
+            print(e)
+            print(e.describe())
+        else:
+            return new_format_date
 
 def get_temp_danger_info(db):
     high_temp_dataset = crud_dql.danger_time_temp(db, 0)
@@ -134,6 +146,8 @@ def get_rain_data_organized(db):
 '''This function takes a full datetime and returns the same data in a beautiful way.
 Ex.: 2025-26-10 18:24:30 ---> 26, oct 06:25:30 PM'''
 def beaulty_date(datetime):
+    if not (len(datetime) == 19 and datetime[4] == '-' and datetime[7] == '-' and datetime[10] == ' ' and datetime[13] == ':' and datetime[16] == ':'):
+        raise InvalidDateTimeError(datetime)
     pieces = datetime.split()
     only_date = pieces[0]
     only_time = pieces[1]
@@ -160,4 +174,8 @@ def beaulty_date(datetime):
 
 if __name__ == '__main__':
     #Testing
-    print(beaulty_date('2025-10-26 11:13:30'))
+    try:
+        print(transform_date('2024-12-08'))
+    except RangeError as e:
+            print(e)
+            print(e.describe())

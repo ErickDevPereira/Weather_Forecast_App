@@ -149,7 +149,7 @@ def generate_snow_rain_prediction_graph(weather_dataset, avg_values_per_date, ra
     #Constructing the images for the rain signal for the next 3 days
     day1 = avg_values_per_date[0]['date']
     day2 = avg_values_per_date[1]['date']
-    day3 = avg_values_per_date[2]['date']
+    day3 =avg_values_per_date[2]['date']
     #Day 1
     Day1raining = raining_data[day1]
     axs[0, 0].plot(hours, rain_signal1)

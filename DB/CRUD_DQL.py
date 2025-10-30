@@ -5,18 +5,18 @@ def evaluate_avg_over_group(db):
     cursor = db.cursor()
     cursor.execute("""
                     SELECT 
-                        CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS date,
+                        DATE(forecast_date) AS date,
                         FORMAT(AVG(temperature), 2) AS avg_temp,
                         FORMAT(AVG(humidity), 2) AS avg_humidity
                     FROM 
                         weather_data
                     GROUP BY
-                        CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date))
+                        DATE(forecast_date)
                 """)
     result = cursor.fetchall() #Returning records as (date, avg_temp, avg_humidity)
     data_set = list()
     for record in result:
-        data_set.append({'date' : record[0],
+        data_set.append({'date' : str(record[0]),
                          'avg_temp' : float(record[1]),
                          'avg_humidity' : float(record[2])})
     cursor.close()
@@ -41,7 +41,7 @@ def days_that_will_rain(db):
     dataset = list()
     for record in results:
         dataset.append({
-                        'rain day' : record[0],
+                        'rain day' : str(record[0]),
                         'rain hour' : record[1],
                         'temperature' : record[2],
                         'humidity' : record[3]
@@ -68,7 +68,7 @@ def days_that_will_snow(db):
     dataset = list()
     for record in results:
         dataset.append({
-                        'snow day' : record[0],
+                        'snow day' : str(record[0]),
                         'snow hour' : record[1],
                         'temperature' : record[2],
                         'humidity' : record[3]
@@ -106,7 +106,7 @@ def all_data(db):
                         'temperature' : record[2],
                         'will it rain' : record[3],
                         'will it snow' : record[4],
-                        'forecast date' : record[5],
+                        'forecast date' : str(record[5]),
                         'humidity' : record[6],
                         'precipitation' : record[7],
                         'rain prob' : record[8],
@@ -121,7 +121,7 @@ def rain_snow_data(db, mode):
         cursor = db.cursor()
         cursor.execute('''
                         SELECT
-                            CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS raining_day,
+                            DATE(forecast_date) AS raining_day,
                             HOUR(forecast_date) AS raining_hour
                         FROM
                             weather_data
@@ -135,7 +135,7 @@ def rain_snow_data(db, mode):
         cursor = db.cursor()
         cursor.execute('''
                         SELECT
-                            CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS snowing_day,
+                            DATE(forecast_date) AS snowing_day,
                             HOUR(forecast_date) AS snowing_hour
                         FROM
                             weather_data
@@ -162,19 +162,20 @@ def min_max_temp(db):
     cursor = db.cursor()
     cursor.execute("""
                     SELECT
-                        MIN(temperature) AS min_temp, MAX(temperature) AS max_temp,
-                        CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS day
+                        MIN(temperature) AS min_temp,
+                        MAX(temperature) AS max_temp,
+                        DATE(forecast_date) AS day
                     FROM
                         weather_data
                     GROUP BY
-                        CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date))
+                        day
                     ORDER BY day
                     """)
     dataset = cursor.fetchall()
     cursor.close()
     organized_data = []
     for data in dataset:
-        organized_data.append({'day' : data[2], 'min_temp' : data[0], 'max_temp' : data[1]})
+        organized_data.append({'day' : str(data[2]), 'min_temp' : data[0], 'max_temp' : data[1]})
     return organized_data
 
 def min_max_humidity(db):
@@ -183,7 +184,7 @@ def min_max_humidity(db):
                     SELECT
                         MIN(humidity) AS min_humidity,
                         MAX(humidity) AS max_humidity,
-                        CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS day
+                        DATE(forecast_date) AS day
                     FROM
                         weather_data
                     GROUP BY
@@ -195,7 +196,7 @@ def min_max_humidity(db):
     cursor.close()
     organized_data = []
     for data in dataset:
-        organized_data.append({'day' : data[2], 'min_humidity' : data[0], 'max_humidity' : data[1]})
+        organized_data.append({'day' : str(data[2]), 'min_humidity' : data[0], 'max_humidity' : data[1]})
     return organized_data
 
 #mode = 0 means that we are accessing rain probability, mode = 1 means that we are accessing snow probability
@@ -204,7 +205,7 @@ def pick_up_probabilities(db, mode):
         cursor = db.cursor()
         cursor.execute("""
                         SELECT
-                            CONCAT(YEAR(wd.forecast_date), '-', MONTH(wd.forecast_date), '-', DAY(wd.forecast_date)) AS date,
+                            DATE(wd.forecast_date) AS date,
                             pb.rain_prob AS rain_probability
                         FROM
                             weather_data AS wd INNER JOIN probabilities AS pb
@@ -215,12 +216,12 @@ def pick_up_probabilities(db, mode):
         results = cursor.fetchall()
         dataset = list()
         for record in results:
-            dataset.append({'day' : record[0], 'probability of rain' : record[1]})
+            dataset.append({'day' : str(record[0]), 'probability of rain' : record[1]})
     if mode == 1:
         cursor = db.cursor()
         cursor.execute("""
                         SELECT
-                            CONCAT(YEAR(wd.forecast_date), '-', MONTH(wd.forecast_date), '-', DAY(wd.forecast_date)) AS date,
+                            DATE(wd.forecast_date) AS date,
                             pb.snow_prob AS snow_probability
                         FROM
                             weather_data AS wd INNER JOIN probabilities AS pb
@@ -231,7 +232,7 @@ def pick_up_probabilities(db, mode):
         results = cursor.fetchall()
         dataset = list()
         for record in results:
-            dataset.append({'day' : record[0], 'probability of snow' : record[1]})
+            dataset.append({'day' : str(record[0]), 'probability of snow' : record[1]})
     return dataset
 
 #Mode = 0 returns list of dictionaries with data for day and hour with temperature higher than the limit of confort zone
@@ -242,7 +243,7 @@ def danger_time_temp(db, mode):
     if mode == 0:
         cursor.execute("""
                         SELECT
-                            CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS day,
+                            DATE(forecast_date) AS day,
                             TIME(forecast_date) AS time,
                             temperature
                         FROM
@@ -255,7 +256,7 @@ def danger_time_temp(db, mode):
     if mode == 1:
         cursor.execute("""
                         SELECT
-                            CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS day,
+                            DATE(forecast_date) AS day,
                             TIME(forecast_date) AS time,
                             temperature
                         FROM
@@ -268,7 +269,7 @@ def danger_time_temp(db, mode):
     results = cursor.fetchall()
     cursor.close()
     for record in results:
-        dataset.append({'day' : record[0], 'time' : record[1], 'temperature' : record[2]})
+        dataset.append({'day' : str(record[0]), 'time' : record[1], 'temperature' : record[2]})
     return dataset
 
 #Mode = 0 returns list of dictionaries with data for day and hour with humidity higher than the limit of confort zone
@@ -279,7 +280,7 @@ def danger_time_humidity(db, mode):
     if mode == 0:
         cursor.execute("""
                         SELECT
-                            CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS day,
+                            DATE(forecast_date) AS day,
                             TIME(forecast_date) AS time,
                             humidity
                         FROM
@@ -292,7 +293,7 @@ def danger_time_humidity(db, mode):
     if mode == 1:
         cursor.execute("""
                         SELECT
-                            CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS day,
+                            DATE(forecast_date) AS day,
                             TIME(forecast_date) AS time,
                             humidity
                         FROM
@@ -305,14 +306,14 @@ def danger_time_humidity(db, mode):
     results = cursor.fetchall()
     cursor.close()
     for record in results:
-        dataset.append({'day' : record[0], 'time' : record[1], 'humidity' : record[2]})
+        dataset.append({'day' : str(record[0]), 'time' : record[1], 'humidity' : record[2]})
     return dataset
 
 def get_precipt_info(db):
     cursor = db.cursor()
     cursor.execute("""
                     SELECT
-                        CONCAT(YEAR(forecast_date), '-', MONTH(forecast_date), '-', DAY(forecast_date)) AS day,
+                        DATE(forecast_date) AS day,
                         SUM(precipitation) AS precipt_mm_sum,
                         CASE
                             WHEN SUM(precipitation) = 0.0 THEN 'No rain'
@@ -329,7 +330,7 @@ def get_precipt_info(db):
                         day
                     """)
     results = cursor.fetchall()
-    info = [{'day' : record[0], 'preciptation_mm' : record[1], 'rain class' : record[2]} for record in results]
+    info = [{'day' : str(record[0]), 'preciptation_mm' : record[1], 'rain class' : record[2]} for record in results]
     cursor.close()
     return info
 
@@ -345,7 +346,7 @@ def get_precipt_for_rainning_hour(db):
                         precipitation > 0.0
                     """)
     results = cursor.fetchall()
-    data = [{'date' : record[0], 'precipitation_mm' : record[1]} for record in results]
+    data = [{'date' : str(record[0]), 'precipitation_mm' : record[1]} for record in results]
     return data
 
 def get_current_weather_data(db):
