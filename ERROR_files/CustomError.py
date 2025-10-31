@@ -26,3 +26,17 @@ class RangeError(MoreInfo, Exception):
         self.second_val = second_val #Maximum allowed value
         self.msg = f"The value is out of the range {first_val} to {second_val}"
         super().__init__(self.msg)
+
+class NotAscendingError(MoreInfo, Exception):
+
+    def __init__(self, list):
+        self.list = list
+        self.msg = f"The list {self.list} must be crescent"
+        super().__init__(self.msg)
+
+class NotDistinctError(MoreInfo, Exception):
+
+    def __init__(self, list):
+        self.list = list
+        self.msg = f"The list {self.list} must have distinct elements"
+        super().__init__(self.msg)

@@ -7,6 +7,26 @@ Such new list will be returned
 Ex.: input: [1, 2, 3, 6, 7, 8, 9, 110, 111, 112] ---> output: [1, 3, 6, 9, 110, 112]
 """
 def let_just_the_extreme(list_of_distinct_numbers):
+
+    def ascending_list(lst):
+        for i in range(1, len(lst)):
+            if lst[i-1] > lst[i]:
+                return False
+        return True
+
+    def distinct_list(lst):
+        for i in range(len(lst)):
+            for j in range(len(lst)):
+                if i != j and lst[i] == lst[j]:
+                    return False
+        return True
+    
+    if not distinct_list(list_of_distinct_numbers):
+        raise NotDistinctError(list_of_distinct_numbers)
+    
+    if not ascending_list(list_of_distinct_numbers):
+        raise NotAscendingError(list_of_distinct_numbers)
+    
     aux_list = list()
     for i in range(len(list_of_distinct_numbers)):
         if i + 2 < len(list_of_distinct_numbers):
