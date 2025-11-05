@@ -384,5 +384,5 @@ def get_current_weather_data(db):
 
 if __name__ == '__main__':
     import CRUD_DDL as crud_ddl
-    my_db = crud_ddl.define_conn()
-    print(min_max_temp(my_db))
+    my_db = crud_ddl.define_conn('root', 'Ichigo007*')
+    print(danger_time_humidity(my_db, 0))
