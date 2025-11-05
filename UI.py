@@ -183,13 +183,28 @@ class Main_Dashboard(Screen, Widget):
         self.label_close_conn = ctk.CTkLabel(self.frame_opt,
                                             text = 'Close connection',
                                             font = (args.fe_args['font_family'], 14))
-        self.label_close_conn.place(relx = 0.04, rely = 0.8)
+        self.label_close_conn.place(relx = 0.04, rely = 0.85)
+        self.CSV_msg = ctk.CTkLabel(self.frame_opt,
+                                    text = 'Export CSV file',
+                                    font = (args.fe_args['font_family'], 14))
+        self.CSV_msg.place(relx = 0.04, rely = 0.79)
+        self.CSV_export_but = self.Button(surface = self.frame_opt,
+                                        text = '',
+                                        color = '#87CEEB',
+                                        hcolor = '#4682B4',
+                                        x = 0.77,
+                                        y = 0.78,
+                                        call_function = self.export_csv,
+                                        mode = 'nw',
+                                        width = 30,
+                                        height = 40,
+                                        image_path = 'dashboards_img/CSV.png')
         self.close_conn_button = self.Button(surface = self.frame_opt,
                                             text = 'X',
                                             color = 'red',
                                             hcolor = '#8B0000',
-                                            x = 0.8,
-                                            y = 0.8,
+                                            x = 0.79,
+                                            y = 0.85,
                                             width = 30,
                                             height = 30,
                                             call_function = self.close_conn,
@@ -548,6 +563,9 @@ class Main_Dashboard(Screen, Widget):
         self.weather_data = crud_dql.all_data(self.my_db)
         self.avg_values_per_date = crud_dql.evaluate_avg_over_group(self.my_db)
         generate_bar_amount_mm_animation(self.weather_data, self.avg_values_per_date)
+    
+    def export_csv(self):
+        pass
 
     def call_humidity_widgets(self):
         self.rm_frame()
