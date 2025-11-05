@@ -7,6 +7,7 @@ import aux_functions
 from graphs import generate_snow_rain_prediction_graph, generate_snow_rain_prob_graph, generate_bar_amount_mm_animation
 from ERROR_files.CustomError import *
 import os
+import csv_code as CSV
 
 '''Decorator responsible for deletion of files when we call a function with such decorator
 on top. Pass the list of paths to the decorator when you call the function.'''
@@ -565,7 +566,11 @@ class Main_Dashboard(Screen, Widget):
         generate_bar_amount_mm_animation(self.weather_data, self.avg_values_per_date)
     
     def export_csv(self):
-        pass
+        CSV.generate_csv_files(self.my_db)
+        self.msg_csv = ctk.CTkLabel(self.frame_opt,
+                               text = 'CSV files were created at CSV_files directory',
+                               font = ('arial', 10))
+        self.msg_csv.place(relx = 0.01, rely = 0.74, anchor = 'nw')
 
     def call_humidity_widgets(self):
         self.rm_frame()

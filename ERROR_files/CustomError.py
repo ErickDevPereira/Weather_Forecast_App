@@ -40,3 +40,10 @@ class NotDistinctError(MoreInfo, Exception):
         self.list = list
         self.msg = f"The list {self.list} must have distinct elements"
         super().__init__(self.msg)
+
+class NotFoundDir(MoreInfo, Exception):
+
+    def __init__(self, path):
+        self.path = path
+        self.msg = f"The directory {self.path} doesn't exist."
+        super().__init__(self.msg)

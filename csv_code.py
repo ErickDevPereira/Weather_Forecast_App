@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import DB.CRUD_DDL as crud_ddl
 import DB.CRUD_DQL as crud_dql
-import ERROR_files.CustomError as err
+from ERROR_files import CustomError as err
 import aux_functions
 
 def create_csv_dir():
@@ -10,7 +10,7 @@ def create_csv_dir():
         os.mkdir('CSV_files')
         os.mkdir('CSV_files/temperature')
         os.mkdir('CSV_files/humidity')
-        os.mkdir('CSV_files/snow_rain')
+        os.mkdir('CSV_files/rain')
 
 def alldata_csv_gen(db):
     dataset = crud_dql.all_data(db)
@@ -93,7 +93,7 @@ def danger_temp_csv_gen(db, mode): #0 for high temperature, 1 for low temperatur
             dataset = crud_dql.danger_time_temp(db, 1) #Querying low temperatures
             if len(dataset) > 0:
                 data = {
-                    'Date': [aux_functions.beaulty_date(record['day'] + ' ' + str(record['time'])) for record in dataset],
+                    'Date': [record['day'] + ' ' + str(record['time']) for record in dataset],
                     'Temperature (°C)': [record['temperature'] for record in dataset]
                 }
             else:
@@ -165,13 +165,17 @@ def rain_day_info_csv_gen(db):
     }
     df = pd.DataFrame(data)
     df.fillna('Undefined', inplace = True)
-    if os.path.exists('CSV_files/snow_rain'):
-        df.to_csv('CSV_files/snow_rain/rain_info_by_day.csv', index = False)
+    if os.path.exists('CSV_files/rain'):
+        df.to_csv('CSV_files/rain/rain_info_by_day.csv', index = False)
     else:
-        raise err.NotFoundDir('CSV_files/snow_rain')
+        raise err.NotFoundDir('CSV_files/rain')
 
 def remove_csv_dir():
     if os.path.exists('CSV_files'):
+        if os.path.exists('CSV_files/averages.csv'):
+            os.remove('CSV_files/averages.csv')
+        if os.path.exists('CSV_files/everything.csv'):
+            os.remove('CSV_files/everything.csv')
         if os.path.exists('CSV_files/humidity'):
             if os.path.exists('CSV_files/humidity/danger_LOW_humidity.csv'):
                 os.remove('CSV_files/humidity/danger_LOW_humidity.csv')
@@ -179,6 +183,7 @@ def remove_csv_dir():
                 os.remove('CSV_files/humidity/danger_HIGH_humidity.csv')
             if os.path.exists('CSV_files/humidity/min_max_humidity.csv'):
                 os.remove('CSV_files/humidity/min_max_humidity.csv')
+            os.rmdir('CSV_files/humidity')
         if os.path.exists('CSV_files/temperature'):
             if os.path.exists('CSV_files/temperature/danger_HIGH_temp.csv'):
                 os.remove('CSV_files/temperature/danger_HIGH_temp.csv')
@@ -186,23 +191,33 @@ def remove_csv_dir():
                 os.remove('CSV_files/temperature/danger_LOW_temp.csv')
             if os.path.exists('CSV_files/temperature/min_max_temp.csv'):
                 os.remove('CSV_files/temperature/min_max_temp.csv')
-        if os.path.exists('CSV_files/snow_rain'):
-            if os.path.exists('CSV_files/snow_rain/rain_info_by_day.csv'):
-                os.remove('CSV_files/snow_rain/rain_info_by_day.csv')
+            os.rmdir('CSV_files/temperature')
+        if os.path.exists('CSV_files/rain'):
+            if os.path.exists('CSV_files/rain/rain_info_by_day.csv'):
+                os.remove('CSV_files/rain/rain_info_by_day.csv')
+            os.rmdir('CSV_files/rain')
+        os.rmdir('CSV_files')
 
-def generate_csv_files(db):
-    remove_csv_dir()
-    create_csv_dir()
-    alldata_csv_gen(db)
-    average_data_csv_gen(db)
-    min_max_temp_csv_gen(db)
-    danger_temp_csv_gen(db, 0)
-    danger_temp_csv_gen(db, 1)
-    min_max_humidity_csv_gen(db)
-    danger_humidity_csv_gen(db, 0)
-    danger_humidity_csv_gen(db, 1)
-    rain_day_info_csv_gen(db)
+def generate_csv_files(db): #This function will use all the others at once. It will create the directories and CSV files at each directory.
+    try:
+        remove_csv_dir() #Remove directories and previous CSV files
+        create_csv_dir() #Recreate directories and CSV files
+    except Exception as ERROR:
+        print(ERROR)
+        print('Did you change the directory CSV_files? Try to delete this folder and restart the app.')
+    else:
+        try:
+            alldata_csv_gen(db)
+            average_data_csv_gen(db)
+            min_max_temp_csv_gen(db)
+            danger_temp_csv_gen(db, 0)
+            danger_temp_csv_gen(db, 1)
+            min_max_humidity_csv_gen(db)
+            danger_humidity_csv_gen(db, 0)
+            danger_humidity_csv_gen(db, 1)
+            rain_day_info_csv_gen(db)
+        except err.NotFoundDir as ERROR:
+            print(ERROR)
 
 if __name__ == '__main__':
-    db = crud_ddl.define_conn('root', 'Ichigo007*')
-    generate_csv_files(db)
+    remove_csv_dir()
