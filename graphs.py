@@ -17,7 +17,7 @@ def set_color(color, visibility = True):
             spine.set_visible(visibility)
         
 """
-For the following 3 functions will save an image in the folder graphical_img.
+For the next 3 functions, it will save an image in the folder graphical_img.
 Detail i: weather_dataset will receive data for every day and every hour. weather_dataset must be linked to all_data().
 Detail ii: avg_values_per_date will receive average data for each one of the 3 days. avg_values_per_date msut be linked to evaluate_avg_over_group().
 Detail iii: how_to_visualize receives 1, 2 or 3. 1 means curve graph, 2 means pie chart and 3 means bar graph.
